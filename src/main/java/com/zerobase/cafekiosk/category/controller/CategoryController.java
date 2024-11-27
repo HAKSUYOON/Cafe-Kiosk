@@ -35,7 +35,7 @@ public class CategoryController {
    * 카테고리 생성
    */
   @PostMapping
-  public ResponseEntity<?> createCategories(@RequestBody String categoryName) {
+  public ResponseEntity<?> createCategory(@RequestBody String categoryName) {
     CategoryDto categoryDto = categoryService.add(categoryName);
     return ResponseEntity.ok(categoryDto);
   }

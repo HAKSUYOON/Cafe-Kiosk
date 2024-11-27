@@ -1,7 +1,6 @@
 package com.zerobase.cafekiosk.category.dto;
 
 import com.zerobase.cafekiosk.category.entity.Category;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -31,9 +30,6 @@ public class CategoryDto {
 
   public static List<CategoryDto> of(List<Category> categories) {
 
-    if (!categories.isEmpty()) {
-      return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
-    }
-    return new ArrayList<>();
+    return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
   }
 }

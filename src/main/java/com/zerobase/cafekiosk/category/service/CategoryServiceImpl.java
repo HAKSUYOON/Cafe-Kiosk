@@ -16,6 +16,11 @@ public class CategoryServiceImpl implements CategoryService {
 
   private final CategoryRepository categoryRepository;
 
+  public int getSortValue() {
+    return categoryRepository.findFirstByOrderByIdDesc()
+        .map(category -> category.getSortValue() + 1).orElse(0);
+  }
+
   public Sort getSortBySortValue() {
     return Sort.by(Direction.ASC, "sortValue");
   }
@@ -23,13 +28,13 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public List<CategoryDto> list() {
 
-    List<Category> categories = categoryRepository.findAll();
+    List<Category> categories = categoryRepository.findAll(getSortBySortValue());
     return CategoryDto.of(categories);
   }
 
   @Override
   public List<CategoryDto> frontList() {
-    List<Category> categories = categoryRepository.findByUsingYnTrue();
+    List<Category> categories = categoryRepository.findByUsingYnTrueOrderBySortValue();
     return CategoryDto.of(categories);
   }
 
@@ -43,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     Category category = Category.builder()
         .categoryName(categoryName)
         .usingYn(true)
-        .sortValue(0)
+        .sortValue(getSortValue())
         .build();
     categoryRepository.save(category);
 
@@ -53,7 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public void delete(Long id) {
 
-    if (categoryRepository.findById(id).isEmpty()) {
+    if (!categoryRepository.existsById(id)) {
       throw new RuntimeException("존재하지 않는 카테고리입니다.");
     }
 
