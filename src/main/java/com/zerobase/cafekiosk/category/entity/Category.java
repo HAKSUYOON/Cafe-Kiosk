@@ -1,4 +1,4 @@
-package com.zerobase.cafekiosk.admin.category.entity;
+package com.zerobase.cafekiosk.category.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,9 +18,9 @@ public class Category {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  Long id;
+  private Long id;
 
-  String categoryName;
-  int sortValue;
-  boolean usingYn;
+  private String categoryName;
+  private int sortValue;
+  private boolean usingYn;
 }

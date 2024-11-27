@@ -1,8 +1,9 @@
-package com.zerobase.cafekiosk.admin.category.dto;
+package com.zerobase.cafekiosk.category.dto;
 
-import com.zerobase.cafekiosk.admin.category.entity.Category;
+import com.zerobase.cafekiosk.category.entity.Category;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryDto {
 
-  Long id;
-  String categoryName;
-  int sortValue;
-  boolean usingYn;
+  private Long id;
+  private String categoryName;
+  private int sortValue;
+  private boolean usingYn;
 
   public static CategoryDto of(Category category) {
     return CategoryDto.builder()
@@ -31,12 +32,8 @@ public class CategoryDto {
   public static List<CategoryDto> of(List<Category> categories) {
 
     if (!categories.isEmpty()) {
-      List<CategoryDto> categoryDtoList = new ArrayList<>();
-      for (Category x : categories) {
-        categoryDtoList.add(of(x));
-      }
-      return categoryDtoList;
+      return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
     }
-    return null;
+    return new ArrayList<>();
   }
 }
