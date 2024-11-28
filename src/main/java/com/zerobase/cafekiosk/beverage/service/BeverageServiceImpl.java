@@ -5,7 +5,6 @@ import com.zerobase.cafekiosk.beverage.entity.Beverage;
 import com.zerobase.cafekiosk.beverage.model.BeverageInput;
 import com.zerobase.cafekiosk.beverage.repository.BeverageRepository;
 import com.zerobase.cafekiosk.category.repository.CategoryRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
