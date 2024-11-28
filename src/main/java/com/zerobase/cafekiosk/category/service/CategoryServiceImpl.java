@@ -16,7 +16,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  public int getSortValue() {
+  public int defaultSortValue() {
     return categoryRepository.findFirstByOrderByIdDesc()
         .map(category -> category.getSortValue() + 1).orElse(0);
   }
@@ -41,14 +41,14 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public CategoryDto add(String categoryName) {
 
-    if (categoryRepository.findByCategoryName(categoryName).isPresent()) {
+    if (categoryRepository.existsByCategoryName(categoryName)) {
       throw new RuntimeException("이미 존재하는 카테고리명 입니다.");
     }
 
     Category category = Category.builder()
         .categoryName(categoryName)
         .usingYn(true)
-        .sortValue(getSortValue())
+        .sortValue(defaultSortValue())
         .build();
     categoryRepository.save(category);
 
