@@ -1,5 +1,6 @@
 package com.zerobase.cafekiosk.category.entity;
 
+import com.zerobase.cafekiosk.category.model.CategoryInput;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,4 +28,18 @@ public class Category {
   private int sortValue;
 
   private boolean usingYn;
+
+  public Category buildCategory(String categoryName, int sortValue) {
+    return Category.builder()
+        .categoryName(categoryName)
+        .usingYn(true)
+        .sortValue(sortValue)
+        .build();
+  }
+
+  public void setCategory(Category category, CategoryInput request) {
+    category.setCategoryName(request.getCategoryName());
+    category.setSortValue(request.getSortValue());
+    category.setUsingYn(request.isUsingYn());
+  }
 }

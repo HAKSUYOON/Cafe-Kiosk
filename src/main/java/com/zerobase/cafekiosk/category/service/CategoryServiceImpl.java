@@ -16,7 +16,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  public int getSortValue() {
+  public int defaultSortValue() {
     return categoryRepository.findFirstByOrderByIdDesc()
         .map(category -> category.getSortValue() + 1).orElse(0);
   }
@@ -41,15 +41,11 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public CategoryDto add(String categoryName) {
 
-    if (categoryRepository.findByCategoryName(categoryName).isPresent()) {
+    if (categoryRepository.existsByCategoryName(categoryName)) {
       throw new RuntimeException("이미 존재하는 카테고리명 입니다.");
     }
 
-    Category category = Category.builder()
-        .categoryName(categoryName)
-        .usingYn(true)
-        .sortValue(getSortValue())
-        .build();
+    Category category = new Category().buildCategory(categoryName, defaultSortValue());
     categoryRepository.save(category);
 
     return CategoryDto.of(category);
@@ -66,14 +62,12 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public void update(Long id, CategoryInput parameter) {
+  public void update(Long id, CategoryInput request) {
 
     Category category = categoryRepository.findById(id).
         orElseThrow(() -> new RuntimeException("해당 카테고리가 존재하지 않습니다."));
 
-    category.setCategoryName(parameter.getCategoryName());
-    category.setSortValue(parameter.getSortValue());
-    category.setUsingYn(parameter.isUsingYn());
+    category.setCategory(category, request);
     categoryRepository.save(category);
   }
 }
