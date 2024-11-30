@@ -7,8 +7,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +27,12 @@ public class BeverageController {
   private final BeverageService beverageService;
 
   /**
-   * 음료 전체 조회
-   * 페이징 처리
+   * 음료 전체 조회 페이징 처리
    */
   @GetMapping
   public ResponseEntity<?> findAllBeverages(
-      @PageableDefault(sort = "id", direction = Direction.ASC)
+      @PageableDefault(page = 1)
+      @SortDefault.SortDefaults({@SortDefault(sort = "id"), @SortDefault(sort = "categoryId")})
       Pageable pageable) {
     Page<BeverageDto> page = beverageService.list(pageable);
     List<BeverageDto> list = page.getContent();

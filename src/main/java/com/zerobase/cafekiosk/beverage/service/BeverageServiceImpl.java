@@ -8,8 +8,6 @@ import com.zerobase.cafekiosk.category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,10 +16,6 @@ public class BeverageServiceImpl implements BeverageService {
 
   private final CategoryRepository categoryRepository;
   private final BeverageRepository beverageRepository;
-
-  public Sort getSortByCategoryId() {
-    return Sort.by(Direction.ASC, "categoryId");
-  }
 
   @Override
   public Page<BeverageDto> list(Pageable pageable) {
