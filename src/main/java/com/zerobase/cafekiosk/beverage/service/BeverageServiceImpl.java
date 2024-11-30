@@ -42,19 +42,7 @@ public class BeverageServiceImpl implements BeverageService {
       throw new RuntimeException("해당 카테고리가 존재하지 않습니다.");
     }
 
-    Beverage beverage = Beverage.builder()
-        .categoryId(request.getCategoryId())
-        .beverageName(request.getBeverageName())
-        .price(request.getPrice())
-        .beverageDetail(request.getBeverageDetail())
-        .shot(request.getShot())
-        .hotWater(request.getHotWater())
-        .coldWater(request.getColdWater())
-        .ice(request.isIce())
-        .powder1(request.getPowder1())
-        .powder2(request.getPowder2())
-        .powder3(request.getPowder3())
-        .build();
+    Beverage beverage = new Beverage().buildBeverage(request);
     beverageRepository.save(beverage);
 
     return BeverageDto.of(beverage);
@@ -66,17 +54,7 @@ public class BeverageServiceImpl implements BeverageService {
     Beverage beverage = beverageRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("해당 음료가 존재하지 않습니다."));
 
-    beverage.setCategoryId(request.getCategoryId());
-    beverage.setBeverageName(request.getBeverageName());
-    beverage.setPrice(request.getPrice());
-    beverage.setBeverageDetail(request.getBeverageDetail());
-    beverage.setShot(request.getShot());
-    beverage.setHotWater(request.getHotWater());
-    beverage.setColdWater(request.getColdWater());
-    beverage.setIce(request.isIce());
-    beverage.setPowder1(request.getPowder1());
-    beverage.setPowder2(request.getPowder2());
-    beverage.setPowder3(request.getPowder3());
+    beverage.setBeverage(beverage, request);
     beverageRepository.save(beverage);
 
   }
