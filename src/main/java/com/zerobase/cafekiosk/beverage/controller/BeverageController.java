@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +30,6 @@ public class BeverageController {
    */
   @GetMapping
   public ResponseEntity<?> findAllBeverages(
-      @PageableDefault(page = 1)
       @SortDefault.SortDefaults({@SortDefault(sort = "id"), @SortDefault(sort = "categoryId")})
       Pageable pageable) {
     Page<BeverageDto> page = beverageService.list(pageable);
