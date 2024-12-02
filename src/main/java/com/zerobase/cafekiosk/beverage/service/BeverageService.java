@@ -14,4 +14,8 @@ public interface BeverageService {
   void update(Long id, BeverageInput request);
 
   void delete(Long id);
+
+  Page<BeverageDto> frontBeverages(Long categoryId, Pageable pageable);
+
+  BeverageDto beverageDetail(Long beverageId);
 }

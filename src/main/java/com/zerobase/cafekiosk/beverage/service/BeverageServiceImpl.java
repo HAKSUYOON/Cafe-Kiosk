@@ -62,4 +62,19 @@ public class BeverageServiceImpl implements BeverageService {
 
     beverageRepository.deleteById(id);
   }
+
+  @Override
+  public Page<BeverageDto> frontBeverages(Long categoryId, Pageable pageable) {
+
+    return beverageRepository.findAllByCategoryId(categoryId, pageable).map(BeverageDto::of);
+  }
+
+  @Override
+  public BeverageDto beverageDetail(Long beverageId) {
+
+    Beverage beverage = beverageRepository.findById(beverageId)
+        .orElseThrow(() -> new RuntimeException("해당 음료가 존재하지 않습니다."));
+
+    return BeverageDto.of(beverage);
+  }
 }

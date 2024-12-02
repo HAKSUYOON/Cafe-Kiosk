@@ -3,11 +3,9 @@ package com.zerobase.cafekiosk.beverage.controller;
 import com.zerobase.cafekiosk.beverage.dto.BeverageDto;
 import com.zerobase.cafekiosk.beverage.model.BeverageInput;
 import com.zerobase.cafekiosk.beverage.service.BeverageService;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,11 +29,9 @@ public class BeverageController {
    */
   @GetMapping
   public ResponseEntity<?> findAllBeverages(
-      @PageableDefault(page = 1)
       @SortDefault.SortDefaults({@SortDefault(sort = "id"), @SortDefault(sort = "categoryId")})
       Pageable pageable) {
-    Page<BeverageDto> page = beverageService.list(pageable);
-    List<BeverageDto> list = page.getContent();
+    Page<BeverageDto> list = beverageService.list(pageable);
 
     return ResponseEntity.ok(list);
   }
