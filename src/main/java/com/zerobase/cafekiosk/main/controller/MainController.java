@@ -31,14 +31,13 @@ public class MainController {
     return ResponseEntity.ok(list);
   }
 
-  @GetMapping("/beverages/{categoryId}")
+  @GetMapping("/categories/beverages/{categoryId}")
   public ResponseEntity<?> frontBeverages(
       @PathVariable Long categoryId,
       @SortDefault(sort = "id")
       Pageable pageable) {
 
-    Page<BeverageDto> frontBeverages = beverageService.frontBeverages(categoryId, pageable);
-    List<BeverageDto> list = frontBeverages.getContent();
+    Page<BeverageDto> list = beverageService.frontBeverages(categoryId, pageable);
 
     return ResponseEntity.ok(list);
   }

@@ -32,8 +32,7 @@ public class BeverageController {
   public ResponseEntity<?> findAllBeverages(
       @SortDefault.SortDefaults({@SortDefault(sort = "id"), @SortDefault(sort = "categoryId")})
       Pageable pageable) {
-    Page<BeverageDto> page = beverageService.list(pageable);
-    List<BeverageDto> list = page.getContent();
+    Page<BeverageDto> list = beverageService.list(pageable);
 
     return ResponseEntity.ok(list);
   }

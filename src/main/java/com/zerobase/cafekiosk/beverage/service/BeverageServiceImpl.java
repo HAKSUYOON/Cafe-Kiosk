@@ -66,9 +66,7 @@ public class BeverageServiceImpl implements BeverageService {
   @Override
   public Page<BeverageDto> frontBeverages(Long categoryId, Pageable pageable) {
 
-    Page<Beverage> beverages = beverageRepository.findAllByCategoryId(categoryId, pageable);
-
-    return beverages.map(BeverageDto::of);
+    return beverageRepository.findAllByCategoryId(categoryId, pageable).map(BeverageDto::of);
   }
 
   @Override
