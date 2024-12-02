@@ -3,7 +3,6 @@ package com.zerobase.cafekiosk.beverage.controller;
 import com.zerobase.cafekiosk.beverage.dto.BeverageDto;
 import com.zerobase.cafekiosk.beverage.model.BeverageInput;
 import com.zerobase.cafekiosk.beverage.service.BeverageService;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
