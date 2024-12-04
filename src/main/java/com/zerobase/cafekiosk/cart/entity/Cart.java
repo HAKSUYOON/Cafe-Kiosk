@@ -24,8 +24,7 @@ public class Cart {
   private Long id;
 
   private Long beverageId;
-  private String beverageName;
-  private int price;
+
   @Positive
   private int quantity;
 
@@ -34,8 +33,6 @@ public class Cart {
   public Cart buildCart(CartInput request) {
     return Cart.builder()
         .beverageId(request.getBeverageId())
-        .beverageName(request.getBeverageName())
-        .price(request.getPrice())
         .quantity(request.getQuantity())
         .cartStatus(CartStatus.ORDERED)
         .build();

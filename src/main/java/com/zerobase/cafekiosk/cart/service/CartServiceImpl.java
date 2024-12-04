@@ -8,7 +8,7 @@ import com.zerobase.cafekiosk.cart.entity.Cart;
 import com.zerobase.cafekiosk.cart.model.CartInput;
 import com.zerobase.cafekiosk.cart.repository.CartRepository;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +19,18 @@ public class CartServiceImpl implements CartService {
   private final CartRepository cartRepository;
   private final BeverageRepository beverageRepository;
 
-  public static int calculatePrice(CartDto cartDto) {
+  private int calculatePrice(CartDto cartDto) {
     return cartDto.getQuantity() * cartDto.getPrice();
+  }
+
+  private String getBeverageName(Long beverageId) {
+    return beverageRepository.findById(beverageId)
+        .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다.")).getBeverageName();
+  }
+
+  private int getPrice(Long beverageId) {
+    return beverageRepository.findById(beverageId)
+        .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다.")).getPrice();
   }
 
   @Override
@@ -28,29 +38,31 @@ public class CartServiceImpl implements CartService {
 
     List<Cart> carts = cartRepository.findAll();
 
-    return CartDto.of(carts);
+    return carts.stream().map(
+            it -> CartDto.of(it, getBeverageName(it.getBeverageId()), getPrice(it.getBeverageId())))
+        .collect(Collectors.toList());
   }
 
   @Override
   public CartDto add(CartInput request) {
 
-    Optional<Cart> optionalCart = cartRepository.findByBeverageIdAndCartStatus
-        (request.getBeverageId(), CartStatus.ORDERED);
+    Cart cart = cartRepository.findByBeverageIdAndCartStatus
+        (request.getBeverageId(), CartStatus.ORDERED).map(it -> {
+      it.setQuantity(it.getQuantity() + request.getQuantity());
+      return it;
+    }).orElseGet(() -> {
+      if (!beverageRepository.existsById(request.getBeverageId())) {
+        throw new RuntimeException("존재하지 않는 음료입니다.");
+      }
+      return new Cart().buildCart(request);
+    });
 
-    if (optionalCart.isPresent()) {
-      Cart cart = optionalCart.get();
-      cart.setQuantity(cart.getQuantity() + request.getQuantity());
-      cartRepository.save(cart);
-      return CartDto.of(cart);
-    } else {
-      Beverage beverage = beverageRepository.findById(request.getBeverageId())
-          .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다."));
-      request.setBeverageName(beverage.getBeverageName());
-      request.setPrice(beverage.getPrice());
-      Cart cart = new Cart().buildCart(request);
-      cartRepository.save(cart);
-      return CartDto.of(cart);
-    }
+    cartRepository.save(cart);
+
+    Beverage beverage = beverageRepository.findById(cart.getBeverageId())
+        .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다."));
+
+    return CartDto.of(cart, getBeverageName(cart.getBeverageId()), getPrice(cart.getBeverageId()));
   }
 
   @Override
@@ -87,10 +99,7 @@ public class CartServiceImpl implements CartService {
 
   @Override
   public int totalPrice(List<CartDto> list) {
-    int totalPrice = 0;
-    for (CartDto x : list) {
-      totalPrice += calculatePrice(x);
-    }
-    return totalPrice;
+
+    return list.stream().map(this::calculatePrice).reduce(0, Integer::sum);
   }
 }

@@ -22,20 +22,14 @@ public class CartDto {
   private int quantity;
   private CartStatus cartStatus;
 
-  public static CartDto of (Cart cart) {
+  public static CartDto of (Cart cart, String beverageName, int price) {
     return CartDto.builder()
         .id(cart.getId())
         .beverageId(cart.getBeverageId())
-        .beverageName(cart.getBeverageName())
-        .price(cart.getPrice())
+        .beverageName(beverageName)
+        .price(price)
         .quantity(cart.getQuantity())
         .cartStatus(cart.getCartStatus())
         .build();
   }
-
-  public static List<CartDto> of(List<Cart> carts) {
-
-    return carts.stream().map(CartDto::of).collect(Collectors.toList());
-  }
-
 }
