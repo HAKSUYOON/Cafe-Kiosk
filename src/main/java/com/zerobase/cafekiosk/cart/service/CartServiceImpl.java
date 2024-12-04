@@ -59,9 +59,6 @@ public class CartServiceImpl implements CartService {
 
     cartRepository.save(cart);
 
-    Beverage beverage = beverageRepository.findById(cart.getBeverageId())
-        .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다."));
-
     return CartDto.of(cart, getBeverageName(cart.getBeverageId()), getPrice(cart.getBeverageId()));
   }
 
