@@ -2,8 +2,6 @@ package com.zerobase.cafekiosk.cart.dto;
 
 import com.zerobase.cafekiosk.cart.constant.CartStatus;
 import com.zerobase.cafekiosk.cart.entity.Cart;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
