@@ -5,6 +5,7 @@ import com.zerobase.cafekiosk.category.entity.Category;
 import com.zerobase.cafekiosk.category.model.CategoryInput;
 import com.zerobase.cafekiosk.category.repository.CategoryRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -29,13 +30,15 @@ public class CategoryServiceImpl implements CategoryService {
   public List<CategoryDto> list() {
 
     List<Category> categories = categoryRepository.findAll(getSortBySortValue());
-    return CategoryDto.of(categories);
+
+    return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
   }
 
   @Override
   public List<CategoryDto> frontList() {
     List<Category> categories = categoryRepository.findByUsingYnTrueOrderBySortValue();
-    return CategoryDto.of(categories);
+
+    return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
   }
 
   @Override

@@ -1,8 +1,6 @@
 package com.zerobase.cafekiosk.category.dto;
 
 import com.zerobase.cafekiosk.category.entity.Category;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,10 +24,5 @@ public class CategoryDto {
         .sortValue(category.getSortValue())
         .usingYn(category.isUsingYn())
         .build();
-  }
-
-  public static List<CategoryDto> of(List<Category> categories) {
-
-    return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
   }
 }

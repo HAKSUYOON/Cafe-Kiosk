@@ -1,8 +1,6 @@
 package com.zerobase.cafekiosk.beverage.dto;
 
 import com.zerobase.cafekiosk.beverage.entity.Beverage;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,12 +41,6 @@ public class BeverageDto {
         .powder3(beverage.getPowder3())
         .build();
   }
-
-  public static List<BeverageDto> of(List<Beverage> beverages) {
-
-    return beverages.stream().map(BeverageDto::of).collect(Collectors.toList());
-  }
-
 }
 
 
