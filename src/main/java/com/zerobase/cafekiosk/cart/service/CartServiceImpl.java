@@ -1,6 +1,5 @@
 package com.zerobase.cafekiosk.cart.service;
 
-import com.zerobase.cafekiosk.beverage.entity.Beverage;
 import com.zerobase.cafekiosk.beverage.repository.BeverageRepository;
 import com.zerobase.cafekiosk.cart.constant.CartStatus;
 import com.zerobase.cafekiosk.cart.dto.CartDto;
