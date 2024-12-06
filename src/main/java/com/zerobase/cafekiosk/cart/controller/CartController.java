@@ -24,9 +24,9 @@ public class CartController {
   private final CartService cartService;
 
   @GetMapping()
-  public ResponseEntity<?> carts() {
+  public ResponseEntity<?> carts(@RequestBody CartInput request) {
 
-    List<CartDto> list = cartService.list();
+    List<CartDto> list = cartService.list(request);
     int totalPrice = cartService.totalPrice(list);
 
     return ResponseEntity.ok().body(new CartResult<>(list, totalPrice));
