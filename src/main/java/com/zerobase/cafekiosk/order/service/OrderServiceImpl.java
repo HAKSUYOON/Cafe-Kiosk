@@ -78,6 +78,10 @@ public class OrderServiceImpl implements OrderService {
       throw new RuntimeException("해당 주문은 이미 존재합니다.");
     }
 
+    if (!kioskRepository.existsById(request.getKioskId())) {
+      throw new RuntimeException("해당 키오스크값이 존재하지 않습니다.");
+    }
+
     OrderEntity orderEntity = new OrderEntity().buildOrderEntity(cartIdList, request);
 
     orderRepository.save(orderEntity);
