@@ -15,6 +15,7 @@ public class CartDto {
 
   private Long id;
   private Long beverageId;
+  private Long kioskId;
   private String beverageName;
   private int price;
   private int quantity;
@@ -24,6 +25,7 @@ public class CartDto {
     return CartDto.builder()
         .id(cart.getId())
         .beverageId(cart.getBeverageId())
+        .kioskId(cart.getKioskId())
         .beverageName(beverageName)
         .price(price)
         .quantity(cart.getQuantity())

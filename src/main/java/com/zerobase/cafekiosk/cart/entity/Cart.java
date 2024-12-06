@@ -25,6 +25,8 @@ public class Cart {
 
   private Long beverageId;
 
+  private Long kioskId;
+
   @Positive
   private int quantity;
 
@@ -33,6 +35,7 @@ public class Cart {
   public Cart buildCart(CartInput request) {
     return Cart.builder()
         .beverageId(request.getBeverageId())
+        .kioskId(request.getKioskId())
         .quantity(request.getQuantity())
         .cartStatus(CartStatus.ORDERED)
         .build();

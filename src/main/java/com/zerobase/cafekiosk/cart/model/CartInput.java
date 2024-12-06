@@ -8,6 +8,7 @@ public class CartInput {
 
   private Long id;
   private Long beverageId;
+  private Long kioskId;
 
   @Positive
   private int quantity;
