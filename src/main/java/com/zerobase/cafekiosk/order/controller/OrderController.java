@@ -20,9 +20,9 @@ public class OrderController {
   private final OrderService orderService;
 
   @GetMapping
-  public ResponseEntity<?> list() {
+  public ResponseEntity<?> currentOrder(@RequestBody OrderInput request) {
 
-    OrderDto orderDto = orderService.list();
+    OrderDto orderDto = orderService.currentOrder(request);
 
     return ResponseEntity.ok(orderDto);
   }
@@ -36,8 +36,8 @@ public class OrderController {
   }
 
   @DeleteMapping("/backspace_button")
-  public void delete() {
+  public void delete(@RequestBody OrderInput request) {
 
-    orderService.delete();
+    orderService.delete(request);
   }
 }

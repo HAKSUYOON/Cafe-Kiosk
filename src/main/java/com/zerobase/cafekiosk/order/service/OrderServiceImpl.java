@@ -25,16 +25,17 @@ public class OrderServiceImpl implements OrderService {
   private final BeverageRepository beverageRepository;
   private final KioskRepository kioskRepository;
 
-  private List<Long> createCartList() {
-    List<Cart> cartList = cartRepository.findAllByKioskIdAndCartStatus(1L, CartStatus.ORDERED)
+  private List<Long> createCartIdList(OrderInput request) {
+    List<Cart> cartList = cartRepository.findAllByKioskIdAndCartStatus(request.getKioskId(),
+            CartStatus.ORDERED)
         .orElseThrow(() -> new RuntimeException("장바구니 아이템을 추가해주세요."));
 
     return cartList.stream().map(Cart::getId).collect(Collectors.toList());
   }
 
-  private String convertToString(List<Long> cartList) {
+  private String convertToString(List<Long> cartIdList) {
 
-    return cartList.stream().map(String::valueOf).collect(Collectors.joining(","));
+    return cartIdList.stream().map(String::valueOf).collect(Collectors.joining(","));
   }
 
   private int getPrice(Long beverageId) {
@@ -42,59 +43,58 @@ public class OrderServiceImpl implements OrderService {
         .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다.")).getPrice();
   }
 
-  private int totalQuantity(List<Long> cartList) {
+  private int totalQuantity(List<Long> cartIdList) {
 
-    return cartList.stream().map(it -> cartRepository.findById(it)
-            .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다.")))
+    return cartRepository.findByIdIn(cartIdList)
+        .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다.")).stream()
         .map(Cart::getQuantity).reduce(0, Integer::sum);
   }
 
-  private int totalPrice(List<Long> cartList) {
+  private int totalPrice(List<Long> cartIdList) {
 
-    return cartList.stream().map(it -> cartRepository.findById(it)
-            .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다.")))
+    return cartRepository.findByIdIn(cartIdList)
+        .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다.")).stream()
         .map(it -> it.getQuantity() * getPrice(it.getBeverageId())).reduce(0, Integer::sum);
   }
 
   @Override
-  public OrderDto list() {
+  public OrderDto currentOrder(OrderInput request) {
 
-    OrderEntity orderEntity = orderRepository.findByKioskIdAndOrderStatus(1L, OrderStatus.ORDERED)
+    OrderEntity orderEntity = orderRepository.findByKioskIdAndOrderStatus(request.getKioskId(),
+            OrderStatus.ORDERED)
         .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
 
-    return OrderDto.of(orderEntity, totalQuantity(orderEntity.getCartList()),
-        totalPrice(orderEntity.getCartList()));
+    return OrderDto.of(orderEntity, totalQuantity(orderEntity.getCartIdList()),
+        totalPrice(orderEntity.getCartIdList()));
   }
 
   @Override
   public OrderDto add(OrderInput request) {
 
-    List<Long> cartList = createCartList();
+    List<Long> cartIdList = createCartIdList(request);
 
-    OrderEntity orderEntity = orderRepository.findByKioskIdAndCartListAndOrderStatus(
-            request.getKioskId(), convertToString(cartList), OrderStatus.ORDERED)
-        .orElseGet(() -> {
-          if (!kioskRepository.existsById(request.getKioskId())) {
-            throw new RuntimeException("존재하지 않는 키오스크값입니다.");
-          }
-          return new OrderEntity().buildOrderEntity(cartList, request);
-        });
+    if (orderRepository.existsByKioskIdAndCartIdListAndOrderStatus(request.getKioskId(),
+        convertToString(cartIdList), OrderStatus.ORDERED)) {
+      throw new RuntimeException("해당 주문은 이미 존재합니다.");
+    }
+
+    OrderEntity orderEntity = new OrderEntity().buildOrderEntity(cartIdList, request);
 
     orderRepository.save(orderEntity);
 
-    return OrderDto.of(orderEntity, totalQuantity(orderEntity.getCartList()),
-        totalPrice(orderEntity.getCartList()));
+    return OrderDto.of(orderEntity, totalQuantity(orderEntity.getCartIdList()),
+        totalPrice(orderEntity.getCartIdList()));
   }
 
   @Override
   @Transactional
-  public void delete() {
+  public void delete(OrderInput request) {
 
-    if (!orderRepository.existsByKioskIdAndOrderStatus(1L, OrderStatus.ORDERED)) {
+    if (!orderRepository.existsByKioskIdAndOrderStatus(request.getKioskId(), OrderStatus.ORDERED)) {
       throw new RuntimeException("주문이 존재하지 않습니다.");
     }
 
-    orderRepository.deleteAllByKioskIdAndOrderStatus(1L, OrderStatus.ORDERED);
+    orderRepository.deleteAllByKioskIdAndOrderStatus(request.getKioskId(), OrderStatus.ORDERED);
 
   }
 }

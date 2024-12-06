@@ -28,14 +28,14 @@ public class OrderEntity {
   private Long kioskId;
 
   @Convert (converter = CartListConverter.class)
-  private List<Long> cartList;
+  private List<Long> cartIdList;
 
   private OrderStatus orderStatus;
 
-  public OrderEntity buildOrderEntity(List<Long> cartList, OrderInput request) {
+  public OrderEntity buildOrderEntity(List<Long> cartIdList, OrderInput request) {
     return OrderEntity.builder()
         .kioskId(request.getKioskId())
-        .cartList(cartList)
+        .cartIdList(cartIdList)
         .orderStatus(OrderStatus.ORDERED)
         .build();
   }

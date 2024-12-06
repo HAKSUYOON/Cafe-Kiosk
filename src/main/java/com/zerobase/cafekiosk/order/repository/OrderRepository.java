@@ -13,8 +13,8 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
   Optional<OrderEntity> findByKioskIdAndOrderStatus(Long kioskId, OrderStatus orderStatus);
 
-  @Query(value = "SELECT * FROM Order_Entity o WHERE o.kiosk_id = ?1 AND o.cart_list = ?2 AND o.order_status = ?3", nativeQuery = true)
-  Optional<OrderEntity> findByKioskIdAndCartListAndOrderStatus(Long id, String cartList,
+  @Query(value = "SELECT IF(count(*)>0, 'true', 'false') FROM Order_Entity o WHERE o.kiosk_id = ?1 AND o.cart_id_list = ?2 AND o.order_status = ?3 limit 1" , nativeQuery = true)
+  boolean existsByKioskIdAndCartIdListAndOrderStatus(Long id, String cartIdList,
       OrderStatus orderStatus);
 
   boolean existsByKioskIdAndOrderStatus(long kioskId, OrderStatus orderStatus);
