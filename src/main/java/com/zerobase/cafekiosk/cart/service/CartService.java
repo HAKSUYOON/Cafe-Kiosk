@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CartService {
 
-  List<CartDto> list();
+  List<CartDto> list(CartInput request);
 
   CartDto add(CartInput request);
 
