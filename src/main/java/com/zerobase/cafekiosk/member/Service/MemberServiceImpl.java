@@ -2,6 +2,7 @@ package com.zerobase.cafekiosk.member.Service;
 
 import com.zerobase.cafekiosk.member.dto.MemberDetailDto;
 import com.zerobase.cafekiosk.member.dto.MemberDto;
+import com.zerobase.cafekiosk.member.entity.CustomUserDetails;
 import com.zerobase.cafekiosk.member.entity.Member;
 import com.zerobase.cafekiosk.member.model.SigninInput;
 import com.zerobase.cafekiosk.member.model.SignupInput;
@@ -23,8 +24,11 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return memberRepository.findByUsername(username)
+
+    Member member = memberRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("해당 유저가 존재하지 않습니다."));
+
+    return CustomUserDetails.of(member);
   }
 
   @Override
