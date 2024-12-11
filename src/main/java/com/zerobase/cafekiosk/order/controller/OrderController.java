@@ -1,7 +1,6 @@
 package com.zerobase.cafekiosk.order.controller;
 
 import com.zerobase.cafekiosk.order.dto.OrderDto;
-import com.zerobase.cafekiosk.order.model.OrderInput;
 import com.zerobase.cafekiosk.order.service.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +19,24 @@ public class OrderController {
   private final OrderService orderService;
 
   @GetMapping
-  public ResponseEntity<?> currentOrder(@RequestBody OrderInput request) {
+  public ResponseEntity<?> currentOrder(@RequestBody Long kioskId) {
 
-    OrderDto orderDto = orderService.currentOrder(request);
+    OrderDto orderDto = orderService.currentOrder(kioskId);
 
     return ResponseEntity.ok(orderDto);
   }
 
   @PostMapping
-  public ResponseEntity<?> add(@RequestBody OrderInput request) {
+  public ResponseEntity<?> add(@RequestBody Long kioskId) {
 
-    OrderDto orderDto = orderService.add(request);
+    OrderDto orderDto = orderService.add(kioskId);
 
     return ResponseEntity.ok(orderDto);
   }
 
   @DeleteMapping("/backspace_button")
-  public void delete(@RequestBody OrderInput request) {
+  public void delete(@RequestBody Long kioskId) {
 
-    orderService.delete(request);
+    orderService.delete(kioskId);
   }
 }

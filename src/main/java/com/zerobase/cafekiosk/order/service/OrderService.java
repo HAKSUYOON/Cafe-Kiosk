@@ -5,9 +5,9 @@ import com.zerobase.cafekiosk.order.model.OrderInput;
 
 public interface OrderService {
 
-  OrderDto currentOrder(OrderInput request);
+  OrderDto currentOrder(Long kioskId);
 
-  OrderDto add(OrderInput request);
+  OrderDto add(Long kioskId);
 
-  void delete(OrderInput request);
+  void delete(Long kioskId);
 }
