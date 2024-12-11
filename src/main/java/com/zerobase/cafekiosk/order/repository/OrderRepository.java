@@ -20,4 +20,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
   boolean existsByKioskIdAndOrderStatus(Long kioskId, OrderStatus orderStatus);
 
   void deleteAllByKioskIdAndOrderStatus(Long kioskId, OrderStatus orderStatus);
+
+  Optional<OrderEntity> findByIdAndKioskIdAndOrderStatus(Long orderId, Long kioskId, OrderStatus orderStatus);
 }
