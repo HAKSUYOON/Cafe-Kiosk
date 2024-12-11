@@ -2,6 +2,6 @@ package com.zerobase.cafekiosk.order.constant;
 
 public enum OrderStatus {
 
-  ORDERED,
-  PAID
+  ORDER_STATUS_ORDERED,
+  ORDER_STATUS_PAID
 }

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class OrderDto {
 
   private Long id;
+  private Long kioskId;
   private List<Long> cartIdList;
   private int totalQuantity;
   private int totalPrice;
@@ -22,6 +23,7 @@ public class OrderDto {
 
     return OrderDto.builder()
         .id(orderEntity.getId())
+        .kioskId(orderEntity.getKioskId())
         .cartIdList(orderEntity.getCartIdList())
         .totalQuantity(totalQuantity)
         .totalPrice(totalPrice)

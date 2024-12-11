@@ -37,7 +37,7 @@ public class Cart {
         .beverageId(request.getBeverageId())
         .kioskId(request.getKioskId())
         .quantity(request.getQuantity())
-        .cartStatus(CartStatus.ORDERED)
+        .cartStatus(CartStatus.CART_STATUS_ORDERED)
         .build();
   }
 }

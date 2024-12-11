@@ -8,7 +8,6 @@ import com.zerobase.cafekiosk.kiosk.repository.KioskRepository;
 import com.zerobase.cafekiosk.order.constant.OrderStatus;
 import com.zerobase.cafekiosk.order.dto.OrderDto;
 import com.zerobase.cafekiosk.order.entity.OrderEntity;
-import com.zerobase.cafekiosk.order.model.OrderInput;
 import com.zerobase.cafekiosk.order.repository.OrderRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,9 +24,9 @@ public class OrderServiceImpl implements OrderService {
   private final BeverageRepository beverageRepository;
   private final KioskRepository kioskRepository;
 
-  private List<Long> createCartIdList(OrderInput request) {
-    List<Cart> cartList = cartRepository.findAllByKioskIdAndCartStatus(request.getKioskId(),
-            CartStatus.ORDERED)
+  private List<Long> createCartIdList(Long kioskId) {
+    List<Cart> cartList = cartRepository.findAllByKioskIdAndCartStatus(kioskId,
+            CartStatus.CART_STATUS_ORDERED)
         .orElseThrow(() -> new RuntimeException("장바구니 아이템을 추가해주세요."));
 
     return cartList.stream().map(Cart::getId).collect(Collectors.toList());
@@ -58,10 +57,10 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public OrderDto currentOrder(OrderInput request) {
+  public OrderDto currentOrder(Long kioskId) {
 
-    OrderEntity orderEntity = orderRepository.findByKioskIdAndOrderStatus(request.getKioskId(),
-            OrderStatus.ORDERED)
+    OrderEntity orderEntity = orderRepository.findByKioskIdAndOrderStatus(kioskId,
+            OrderStatus.ORDER_STATUS_ORDERED)
         .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
 
     return OrderDto.of(orderEntity, totalQuantity(orderEntity.getCartIdList()),
@@ -69,20 +68,20 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public OrderDto add(OrderInput request) {
+  public OrderDto add(Long kioskId) {
 
-    List<Long> cartIdList = createCartIdList(request);
+    List<Long> cartIdList = createCartIdList(kioskId);
 
-    if (orderRepository.existsByKioskIdAndCartIdListAndOrderStatus(request.getKioskId(),
-        convertToString(cartIdList), OrderStatus.ORDERED)) {
+    if (orderRepository.existsByKioskIdAndCartIdListAndOrderStatus(kioskId,
+        convertToString(cartIdList), OrderStatus.ORDER_STATUS_ORDERED)) {
       throw new RuntimeException("해당 주문은 이미 존재합니다.");
     }
 
-    if (!kioskRepository.existsById(request.getKioskId())) {
+    if (!kioskRepository.existsById(kioskId)) {
       throw new RuntimeException("해당 키오스크값이 존재하지 않습니다.");
     }
 
-    OrderEntity orderEntity = new OrderEntity().buildOrderEntity(cartIdList, request);
+    OrderEntity orderEntity = new OrderEntity().buildOrderEntity(cartIdList, kioskId);
 
     orderRepository.save(orderEntity);
 
@@ -92,13 +91,13 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional
-  public void delete(OrderInput request) {
+  public void delete(Long kioskId) {
 
-    if (!orderRepository.existsByKioskIdAndOrderStatus(request.getKioskId(), OrderStatus.ORDERED)) {
+    if (!orderRepository.existsByKioskIdAndOrderStatus(kioskId, OrderStatus.ORDER_STATUS_ORDERED)) {
       throw new RuntimeException("주문이 존재하지 않습니다.");
     }
 
-    orderRepository.deleteAllByKioskIdAndOrderStatus(request.getKioskId(), OrderStatus.ORDERED);
+    orderRepository.deleteAllByKioskIdAndOrderStatus(kioskId, OrderStatus.ORDER_STATUS_ORDERED);
 
   }
 }

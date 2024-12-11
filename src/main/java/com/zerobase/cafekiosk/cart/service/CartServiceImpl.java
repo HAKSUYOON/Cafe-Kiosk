@@ -37,7 +37,7 @@ public class CartServiceImpl implements CartService {
   @Override
   public List<CartDto> list(CartInput request) {
 
-    List<Cart> carts = cartRepository.findAllByKioskIdAndCartStatus(request.getKioskId(), CartStatus.ORDERED)
+    List<Cart> carts = cartRepository.findAllByKioskIdAndCartStatus(request.getKioskId(), CartStatus.CART_STATUS_ORDERED)
         .orElseThrow(() -> new RuntimeException("상품을 추가해주세요."));
 
     return carts.stream().map(
@@ -49,7 +49,7 @@ public class CartServiceImpl implements CartService {
   public CartDto add(CartInput request) {
 
     Cart cart = cartRepository.findByKioskIdAndBeverageIdAndCartStatus
-        (request.getKioskId(), request.getBeverageId(), CartStatus.ORDERED).map(it -> {
+        (request.getKioskId(), request.getBeverageId(), CartStatus.CART_STATUS_ORDERED).map(it -> {
       it.setQuantity(it.getQuantity() + request.getQuantity());
       return it;
     }).orElseGet(() -> {
