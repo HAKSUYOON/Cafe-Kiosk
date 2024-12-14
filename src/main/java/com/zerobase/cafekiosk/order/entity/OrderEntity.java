@@ -2,7 +2,6 @@ package com.zerobase.cafekiosk.order.entity;
 
 import com.zerobase.cafekiosk.config.CartListConverter;
 import com.zerobase.cafekiosk.order.constant.OrderStatus;
-import com.zerobase.cafekiosk.order.model.OrderInput;
 import java.util.List;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -27,16 +26,16 @@ public class OrderEntity {
 
   private Long kioskId;
 
-  @Convert (converter = CartListConverter.class)
+  @Convert(converter = CartListConverter.class)
   private List<Long> cartIdList;
 
   private OrderStatus orderStatus;
 
-  public OrderEntity buildOrderEntity(List<Long> cartIdList, OrderInput request) {
+  public OrderEntity buildOrderEntity(List<Long> cartIdList, Long kioskId) {
     return OrderEntity.builder()
-        .kioskId(request.getKioskId())
+        .kioskId(kioskId)
         .cartIdList(cartIdList)
-        .orderStatus(OrderStatus.ORDERED)
+        .orderStatus(OrderStatus.ORDER_STATUS_ORDERED)
         .build();
   }
 }
