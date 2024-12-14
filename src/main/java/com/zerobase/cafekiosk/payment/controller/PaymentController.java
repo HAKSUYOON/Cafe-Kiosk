@@ -40,6 +40,8 @@ public class PaymentController {
     cardService.validate(paymentId, request.getKioskId(), request.getCardNumber());
     CardDto cardDto = cardService.confirm(paymentId, request.getKioskId(), request.getCardNumber());
     PaymentDto paymentDto = paymentService.confirm(paymentId, request.getKioskId());
+    paymentService.setStamp(paymentId, request);
+
 
     return ResponseEntity.ok().body(new PaymentResult<>(paymentDto, cardDto));
   }

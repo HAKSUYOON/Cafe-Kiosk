@@ -14,14 +14,18 @@ import com.zerobase.cafekiosk.payment.constant.PaymentMethod;
 import com.zerobase.cafekiosk.payment.constant.PaymentStatus;
 import com.zerobase.cafekiosk.payment.dto.PaymentDto;
 import com.zerobase.cafekiosk.payment.entity.Payment;
+import com.zerobase.cafekiosk.payment.model.PaymentInput;
 import com.zerobase.cafekiosk.payment.repository.PaymentRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +55,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     Member member = memberRepository.findByUsername(username).orElseGet(Member::new);
 
-    if (paymentRepository.existsByOrderIdAndKioskIdAndPaymentStatus(orderEntity.getId(), kioskId, PaymentStatus.PAYMENT_STATUS_READY)) {
+    if (paymentRepository.existsByOrderIdAndKioskIdAndPaymentStatus(orderEntity.getId(), kioskId,
+        PaymentStatus.PAYMENT_STATUS_READY)) {
       throw new RuntimeException("이미 결제가 생성되어있습니다.");
     }
 
@@ -70,6 +75,7 @@ public class PaymentServiceImpl implements PaymentService {
   }
 
   @Override
+  @Transactional
   public PaymentDto confirm(Long paymentId, Long kioskId) {
     Payment payment = paymentRepository.findByIdAndKioskIdAndPaymentStatus(paymentId, kioskId,
             PaymentStatus.PAYMENT_STATUS_READY)
@@ -99,6 +105,21 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     return PaymentDto.of(payment);
+  }
+
+  @Override
+  @Transactional
+  public void setStamp(Long paymentId, PaymentInput request) {
+    Payment payment = paymentRepository.findByIdAndKioskIdAndPaymentStatus(paymentId,
+            request.getKioskId(),
+            PaymentStatus.PAYMENT_STATUS_DONE)
+        .orElseThrow(() -> new RuntimeException("입력하신 결제번호에 대한 적절한 결제정보를 가져오지 못했습니다."));
+
+    if (!payment.getUsername().equals("anonymousUser")) {
+      Member member = memberRepository.findByUsername(payment.getUsername())
+          .orElseThrow(() -> new RuntimeException("해당 유저를 찾지 못했습니다."));
+      saveChangeStampCount(member, payment);
+    }
   }
 
   private boolean canSale(Member member) {
@@ -177,5 +198,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     return saleAmount;
+  }
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  private synchronized void saveChangeStampCount(Member member, Payment payment) {
+    member.setStamp(member.getStamp() - payment.getUsingStampCount() * 10);
+    memberRepository.save(member);
   }
 }

@@ -7,8 +7,11 @@ import com.zerobase.cafekiosk.card.entity.Card;
 import com.zerobase.cafekiosk.card.repository.CardRepository;
 import com.zerobase.cafekiosk.payment.constant.PaymentStatus;
 import com.zerobase.cafekiosk.payment.repository.PaymentRepository;
+import javax.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -43,6 +46,7 @@ public class CardServiceImpl implements CardService {
   }
 
   @Override
+  @Transactional
   public CardDto confirm(Long paymentId, Long kioskId, String cardNumber) {
     Card card = cardRepository.findByCardNumber(cardNumber)
         .orElseThrow(() -> new RuntimeException("인증되지 않은 카드입니다."));
@@ -54,15 +58,21 @@ public class CardServiceImpl implements CardService {
 
     CardDto cardDto = new CardDto();
 
-    if (card.getCardType().equals(CardType.CARD_TYPE_CREDIT)) {
+    if (card.getCardType() == CardType.CARD_TYPE_CREDIT) {
       cardDto.setCardDto(cardDto, card, approvedAmount);
     } else {
-      int balance = card.getBalance() - approvedAmount;
-      card.setBalance(balance);
-      cardRepository.save(card);
+      saveChangeBalance(card, card.getBalance(), approvedAmount);
       cardDto.setCardDto(cardDto, card, approvedAmount);
     }
 
     return cardDto;
+  }
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  private synchronized void saveChangeBalance(Card card, int balance, int approvedAmount) {
+    int changeBalance = balance - approvedAmount;
+    card.setBalance(changeBalance);
+    cardRepository.save(card);
+
   }
 }
