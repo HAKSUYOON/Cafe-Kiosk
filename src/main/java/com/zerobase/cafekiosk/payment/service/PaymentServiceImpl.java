@@ -54,6 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     Member member = memberRepository.findByUsername(username).orElseGet(Member::new);
+    member.setUsername(username);
 
     if (paymentRepository.existsByOrderIdAndKioskIdAndPaymentStatus(orderEntity.getId(), kioskId,
         PaymentStatus.PAYMENT_STATUS_READY)) {
