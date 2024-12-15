@@ -25,4 +25,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
   @Query(value = "SELECT p FROM Payment p WHERE p.paymentStatus = ?1 AND FUNCTION('DATE_FORMAT', p.approvedAt, '%Y') = FUNCTION('DATE_FORMAT', ?2, '%Y')")
   Optional<List<Payment>> findAllByPaymentStatusAndApprovedAtYear(PaymentStatus paymentStatus, LocalDateTime localDateTime);
+
+  Optional<Payment> findByIdAndPaymentStatus(Long paymentId, PaymentStatus paymentStatus);
 }

@@ -22,4 +22,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
   void deleteAllByKioskIdAndOrderStatus(Long kioskId, OrderStatus orderStatus);
 
   Optional<OrderEntity> findByIdAndKioskIdAndOrderStatus(Long orderId, Long kioskId, OrderStatus orderStatus);
+
+  Optional<OrderEntity> findByIdAndOrderStatus(Long orderId, OrderStatus orderStatus);
 }

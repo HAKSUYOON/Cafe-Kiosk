@@ -24,4 +24,6 @@ public interface PaymentService {
   int calculateRevenue(List<RevenueDto> revenueDtoList);
 
   int countRevenue(List<RevenueDto> revenueDtoList);
+
+  void tasting(Long paymentId);
 }

@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
@@ -178,7 +179,38 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   public int countRevenue(List<RevenueDto> revenueDtoList) {
-    return revenueDtoList.size();
+    List<Long> paymentIdList = revenueDtoList.stream().map(RevenueDto::getId).collect(Collectors.toList());
+    List<Payment> paymentList = paymentIdList.stream().map(it -> paymentRepository.findById(it)
+        .orElseThrow(() -> new RuntimeException("해당 결제를 찾을 수 없습니다."))).collect(
+        Collectors.toList());
+    long count = paymentList.stream().filter(it -> !it.getUsername().equals("ADMIN")).count();
+
+    return Optional.of(count).orElse(0L).intValue();
+  }
+
+  @Override
+  public void tasting(Long paymentId) {
+    Payment payment = paymentRepository.findByIdAndPaymentStatus(paymentId,
+            PaymentStatus.PAYMENT_STATUS_READY)
+        .orElseThrow(() -> new RuntimeException("입력하신 결제번호에 대한 적절한 결제정보를 가져오지 못했습니다."));
+
+    paymentRepository.save(Payment.freePayment(payment));
+
+    OrderEntity orderEntity = orderRepository.findByIdAndOrderStatus(payment.getOrderId(), OrderStatus.ORDER_STATUS_ORDERED)
+        .orElseThrow(() -> new RuntimeException("해당 주문이 존재하지 않습니다."));
+
+    orderEntity.setOrderStatus(OrderStatus.ORDER_STATUS_PAID);
+    orderRepository.save(orderEntity);
+
+    List<Cart> cartList = orderEntity.getCartIdList().stream()
+        .map(cartId -> cartRepository.findByIdAndCartStatus(cartId, CartStatus.CART_STATUS_ORDERED)
+            .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다."))).collect(
+            Collectors.toList());
+
+    for (Cart cart : cartList) {
+      cart.setCartStatus(CartStatus.CART_STATUS_PAID);
+      cartRepository.save(cart);
+    }
   }
 
   private boolean canSale(Member member) {
