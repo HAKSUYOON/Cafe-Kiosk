@@ -20,4 +20,8 @@ public interface PaymentService {
   List<RevenueDto> monthRevenues(String month);
 
   List<RevenueDto> yearRevenues(String year);
+
+  int calculateRevenue(List<RevenueDto> revenueDtoList);
+
+  int countRevenue(List<RevenueDto> revenueDtoList);
 }

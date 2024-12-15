@@ -171,6 +171,16 @@ public class PaymentServiceImpl implements PaymentService {
     return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
   }
 
+  @Override
+  public int calculateRevenue(List<RevenueDto> revenueDtoList) {
+    return revenueDtoList.stream().map(RevenueDto::getApprovedAmount).reduce(0, Integer::sum);
+  }
+
+  @Override
+  public int countRevenue(List<RevenueDto> revenueDtoList) {
+    return revenueDtoList.size();
+  }
+
   private boolean canSale(Member member) {
     return member.getStamp() >= 10;
   }
