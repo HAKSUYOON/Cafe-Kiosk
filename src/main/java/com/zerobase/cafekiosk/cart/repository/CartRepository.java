@@ -15,4 +15,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
   Optional<List<Cart>> findByIdIn(List<Long> cartIdList);
 
   Optional<Cart> findByIdAndKioskIdAndCartStatus(Long cartId, Long kioskId, CartStatus cartStatus);
+
+  Optional<Cart> findByIdAndCartStatus(Long cartId, CartStatus cartStatus);
 }

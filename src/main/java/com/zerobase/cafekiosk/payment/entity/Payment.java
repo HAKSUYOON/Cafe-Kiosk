@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +37,7 @@ public class Payment {
   @PositiveOrZero
   private int usingStampCount;
 
-  @Positive
+  @PositiveOrZero
   private int totalAmount;
 
   @PositiveOrZero
@@ -69,5 +68,18 @@ public class Payment {
         .requestedAt(LocalDateTime.now())
         .paymentStatus(PaymentStatus.PAYMENT_STATUS_READY)
         .build();
+  }
+
+  public static Payment freePayment(Payment payment) {
+    payment.setUsername("ADMIN");
+    payment.setSale(false);
+    payment.setUsingStampCount(0);
+    payment.setTotalAmount(0);
+    payment.setSaleAmount(0);
+    payment.setApprovedAmount(0);
+    payment.setPaymentMethod(PaymentMethod.PAYMENT_METHOD_CARD);
+    payment.setApprovedAt(LocalDateTime.now());
+    payment.setPaymentStatus(PaymentStatus.PAYMENT_STATUS_DONE);
+    return payment;
   }
 }

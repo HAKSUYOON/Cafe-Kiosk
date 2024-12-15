@@ -1,5 +1,6 @@
 package com.zerobase.cafekiosk.payment.controller;
 
+import com.zerobase.cafekiosk.admin.service.StampHistoryService;
 import com.zerobase.cafekiosk.card.Service.CardService;
 import com.zerobase.cafekiosk.card.dto.CardDto;
 import com.zerobase.cafekiosk.payment.dto.PaymentDto;
@@ -22,6 +23,7 @@ public class PaymentController {
 
   private final PaymentService paymentService;
   private final CardService cardService;
+  private final StampHistoryService stampHistoryService;
 
   @PostMapping
   public ResponseEntity<?> createPayment(@RequestBody Long kioskId) {
@@ -41,6 +43,7 @@ public class PaymentController {
     CardDto cardDto = cardService.confirm(paymentId, request.getKioskId(), request.getCardNumber());
     PaymentDto paymentDto = paymentService.confirm(paymentId, request.getKioskId());
     paymentService.setStamp(paymentId, request);
+    stampHistoryService.saveHistory(paymentId, request);
 
 
     return ResponseEntity.ok().body(new PaymentResult<>(paymentDto, cardDto));
