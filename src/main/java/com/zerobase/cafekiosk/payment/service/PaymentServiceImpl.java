@@ -1,5 +1,6 @@
 package com.zerobase.cafekiosk.payment.service;
 
+import com.zerobase.cafekiosk.admin.dto.RevenueDto;
 import com.zerobase.cafekiosk.beverage.repository.BeverageRepository;
 import com.zerobase.cafekiosk.cart.constant.CartStatus;
 import com.zerobase.cafekiosk.cart.entity.Cart;
@@ -17,6 +18,7 @@ import com.zerobase.cafekiosk.payment.entity.Payment;
 import com.zerobase.cafekiosk.payment.model.PaymentInput;
 import com.zerobase.cafekiosk.payment.repository.PaymentRepository;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -123,6 +125,52 @@ public class PaymentServiceImpl implements PaymentService {
     }
   }
 
+  @Override
+  public List<RevenueDto> todayRevenue() {
+
+    List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtToday(
+            PaymentStatus.PAYMENT_STATUS_DONE)
+        .orElseThrow(() -> new RuntimeException("오늘의 매출액이 존재하지 않습니다."));
+
+    return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<RevenueDto> dateRevenue(String date) {
+
+    LocalDateTime localDateTime = dateToLocalDateTime(date);
+
+    List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtDate(
+            PaymentStatus.PAYMENT_STATUS_DONE, localDateTime)
+        .orElseThrow(() -> new RuntimeException("해당 날짜에 매출액이 존재하지 않습니다."));
+
+    return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<RevenueDto> monthRevenues(String month) {
+
+    LocalDateTime localDateTime = monthToLocalDateTime(month);
+
+    List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtMonth(
+            PaymentStatus.PAYMENT_STATUS_DONE, localDateTime)
+        .orElseThrow(() -> new RuntimeException("해당 월에 매출액이 존재하지 않습니다."));
+
+    return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<RevenueDto> yearRevenues(String year) {
+
+    LocalDateTime localDateTime = yearToLocalDateTime(year);
+
+    List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtYear(
+            PaymentStatus.PAYMENT_STATUS_DONE, localDateTime)
+        .orElseThrow(() -> new RuntimeException("해당 년도에 매출액이 존재하지 않습니다."));
+
+    return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
+  }
+
   private boolean canSale(Member member) {
     return member.getStamp() >= 10;
   }
@@ -205,5 +253,32 @@ public class PaymentServiceImpl implements PaymentService {
   private synchronized void saveChangeStampCount(Member member, Payment payment) {
     member.setStamp(member.getStamp() - payment.getUsingStampCount() * 10);
     memberRepository.save(member);
+  }
+
+  private LocalDateTime dateToLocalDateTime(String date) {
+
+    date = date.concat("000000");
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    return LocalDateTime.parse(date, formatter);
+  }
+
+  private LocalDateTime monthToLocalDateTime(String month) {
+
+    month = month.concat("01000000");
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    return LocalDateTime.parse(month, formatter);
+  }
+
+  private LocalDateTime yearToLocalDateTime(String year) {
+
+    year = year.concat("0101000000");
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    return LocalDateTime.parse(year, formatter);
   }
 }
