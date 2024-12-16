@@ -189,7 +189,8 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   public int countRevenue(List<RevenueDto> revenueDtoList) {
-    List<Long> paymentIdList = revenueDtoList.stream().map(RevenueDto::getId).collect(Collectors.toList());
+    List<Long> paymentIdList = revenueDtoList.stream().map(RevenueDto::getId)
+        .collect(Collectors.toList());
     List<Payment> paymentList = paymentIdList.stream().map(it -> paymentRepository.findById(it)
         .orElseThrow(NotFoundPaymentException::new)).collect(
         Collectors.toList());
@@ -206,7 +207,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     paymentRepository.save(Payment.freePayment(payment));
 
-    OrderEntity orderEntity = orderRepository.findByIdAndOrderStatus(payment.getOrderId(), OrderStatus.ORDER_STATUS_ORDERED)
+    OrderEntity orderEntity = orderRepository.findByIdAndOrderStatus(payment.getOrderId(),
+            OrderStatus.ORDER_STATUS_ORDERED)
         .orElseThrow(NotFoundOrderException::new);
 
     orderEntity.setOrderStatus(OrderStatus.ORDER_STATUS_PAID);
@@ -301,9 +303,20 @@ public class PaymentServiceImpl implements PaymentService {
     return saleAmount;
   }
 
+  private int calculateTotalQuantity(Payment payment) {
+    OrderEntity orderEntity = orderRepository.findByIdAndKioskId(payment.getOrderId(),
+        payment.getKioskId()).orElseThrow(NotFoundOrderException::new);
+
+    return cartRepository.findByIdIn(orderEntity.getCartIdList())
+        .orElseThrow(NotFoundCartIdException::new).stream().map(Cart::getQuantity)
+        .reduce(0, Integer::sum);
+  }
+
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   private synchronized void saveChangeStampCount(Member member, Payment payment) {
-    member.setStamp(member.getStamp() - payment.getUsingStampCount() * 10);
+    member.setStamp(
+        member.getStamp() - payment.getUsingStampCount() * 10 + (calculateTotalQuantity(payment)
+            - payment.getUsingStampCount()));
     memberRepository.save(member);
   }
 
