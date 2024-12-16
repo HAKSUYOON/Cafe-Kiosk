@@ -5,6 +5,16 @@ import com.zerobase.cafekiosk.beverage.repository.BeverageRepository;
 import com.zerobase.cafekiosk.cart.constant.CartStatus;
 import com.zerobase.cafekiosk.cart.entity.Cart;
 import com.zerobase.cafekiosk.cart.repository.CartRepository;
+import com.zerobase.cafekiosk.exception.Impl.AlreadyExistsPaymentException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundBeverageException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundCartIdException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundOrderException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundPaymentException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundRevenueException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundUserException;
+import com.zerobase.cafekiosk.exception.Impl.WrongDateRequestException;
+import com.zerobase.cafekiosk.exception.Impl.WrongMonthRequestException;
+import com.zerobase.cafekiosk.exception.Impl.WrongYearRequestException;
 import com.zerobase.cafekiosk.member.entity.CustomUserDetails;
 import com.zerobase.cafekiosk.member.entity.Member;
 import com.zerobase.cafekiosk.member.repository.MemberRepository;
@@ -45,7 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     OrderEntity orderEntity = orderRepository.findByKioskIdAndOrderStatus(
             kioskId, OrderStatus.ORDER_STATUS_ORDERED)
-        .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
+        .orElseThrow(NotFoundOrderException::new);
 
     String username;
 
@@ -61,7 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     if (paymentRepository.existsByOrderIdAndKioskIdAndPaymentStatus(orderEntity.getId(), kioskId,
         PaymentStatus.PAYMENT_STATUS_READY)) {
-      throw new RuntimeException("이미 결제가 생성되어있습니다.");
+      throw new AlreadyExistsPaymentException();
     }
 
     boolean isSale = canSale(member);
@@ -83,7 +93,7 @@ public class PaymentServiceImpl implements PaymentService {
   public PaymentDto confirm(Long paymentId, Long kioskId) {
     Payment payment = paymentRepository.findByIdAndKioskIdAndPaymentStatus(paymentId, kioskId,
             PaymentStatus.PAYMENT_STATUS_READY)
-        .orElseThrow(() -> new RuntimeException("입력하신 결제번호에 대한 결제를 찾을 수 없습니다."));
+        .orElseThrow(NotFoundPaymentException::new);
 
     payment.setPaymentMethod(PaymentMethod.PAYMENT_METHOD_CARD);
     payment.setPaymentStatus(PaymentStatus.PAYMENT_STATUS_DONE);
@@ -92,7 +102,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     OrderEntity orderEntity = orderRepository.findByIdAndKioskIdAndOrderStatus(payment.getOrderId(),
             kioskId, OrderStatus.ORDER_STATUS_ORDERED)
-        .orElseThrow(() -> new RuntimeException("해당 주문이 존재하지 않습니다."));
+        .orElseThrow(NotFoundOrderException::new);
 
     orderEntity.setOrderStatus(OrderStatus.ORDER_STATUS_PAID);
     orderRepository.save(orderEntity);
@@ -100,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
     List<Cart> cartList = orderEntity.getCartIdList().stream()
         .map(cartId -> cartRepository.findByIdAndKioskIdAndCartStatus(cartId, kioskId,
                 CartStatus.CART_STATUS_ORDERED)
-            .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다."))).collect(
+            .orElseThrow(NotFoundCartIdException::new)).collect(
             Collectors.toList());
 
     for (Cart cart : cartList) {
@@ -117,11 +127,11 @@ public class PaymentServiceImpl implements PaymentService {
     Payment payment = paymentRepository.findByIdAndKioskIdAndPaymentStatus(paymentId,
             request.getKioskId(),
             PaymentStatus.PAYMENT_STATUS_DONE)
-        .orElseThrow(() -> new RuntimeException("입력하신 결제번호에 대한 적절한 결제정보를 가져오지 못했습니다."));
+        .orElseThrow(NotFoundPaymentException::new);
 
     if (!payment.getUsername().equals("anonymousUser")) {
       Member member = memberRepository.findByUsername(payment.getUsername())
-          .orElseThrow(() -> new RuntimeException("해당 유저를 찾지 못했습니다."));
+          .orElseThrow(NotFoundUserException::new);
       saveChangeStampCount(member, payment);
     }
   }
@@ -131,7 +141,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtToday(
             PaymentStatus.PAYMENT_STATUS_DONE)
-        .orElseThrow(() -> new RuntimeException("오늘의 매출액이 존재하지 않습니다."));
+        .orElseThrow(NotFoundRevenueException::new);
 
     return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
   }
@@ -143,7 +153,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtDate(
             PaymentStatus.PAYMENT_STATUS_DONE, localDateTime)
-        .orElseThrow(() -> new RuntimeException("해당 날짜에 매출액이 존재하지 않습니다."));
+        .orElseThrow(NotFoundRevenueException::new);
 
     return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
   }
@@ -155,7 +165,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtMonth(
             PaymentStatus.PAYMENT_STATUS_DONE, localDateTime)
-        .orElseThrow(() -> new RuntimeException("해당 월에 매출액이 존재하지 않습니다."));
+        .orElseThrow(NotFoundRevenueException::new);
 
     return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
   }
@@ -167,7 +177,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Payment> payments = paymentRepository.findAllByPaymentStatusAndApprovedAtYear(
             PaymentStatus.PAYMENT_STATUS_DONE, localDateTime)
-        .orElseThrow(() -> new RuntimeException("해당 년도에 매출액이 존재하지 않습니다."));
+        .orElseThrow(NotFoundRevenueException::new);
 
     return payments.stream().map(RevenueDto::of).collect(Collectors.toList());
   }
@@ -181,7 +191,7 @@ public class PaymentServiceImpl implements PaymentService {
   public int countRevenue(List<RevenueDto> revenueDtoList) {
     List<Long> paymentIdList = revenueDtoList.stream().map(RevenueDto::getId).collect(Collectors.toList());
     List<Payment> paymentList = paymentIdList.stream().map(it -> paymentRepository.findById(it)
-        .orElseThrow(() -> new RuntimeException("해당 결제를 찾을 수 없습니다."))).collect(
+        .orElseThrow(NotFoundPaymentException::new)).collect(
         Collectors.toList());
     long count = paymentList.stream().filter(it -> !it.getUsername().equals("ADMIN")).count();
 
@@ -192,19 +202,19 @@ public class PaymentServiceImpl implements PaymentService {
   public void tasting(Long paymentId) {
     Payment payment = paymentRepository.findByIdAndPaymentStatus(paymentId,
             PaymentStatus.PAYMENT_STATUS_READY)
-        .orElseThrow(() -> new RuntimeException("입력하신 결제번호에 대한 적절한 결제정보를 가져오지 못했습니다."));
+        .orElseThrow(NotFoundPaymentException::new);
 
     paymentRepository.save(Payment.freePayment(payment));
 
     OrderEntity orderEntity = orderRepository.findByIdAndOrderStatus(payment.getOrderId(), OrderStatus.ORDER_STATUS_ORDERED)
-        .orElseThrow(() -> new RuntimeException("해당 주문이 존재하지 않습니다."));
+        .orElseThrow(NotFoundOrderException::new);
 
     orderEntity.setOrderStatus(OrderStatus.ORDER_STATUS_PAID);
     orderRepository.save(orderEntity);
 
     List<Cart> cartList = orderEntity.getCartIdList().stream()
         .map(cartId -> cartRepository.findByIdAndCartStatus(cartId, CartStatus.CART_STATUS_ORDERED)
-            .orElseThrow(() -> new RuntimeException("해당 장바구니가 존재하지 않습니다."))).collect(
+            .orElseThrow(NotFoundCartIdException::new)).collect(
             Collectors.toList());
 
     for (Cart cart : cartList) {
@@ -227,7 +237,7 @@ public class PaymentServiceImpl implements PaymentService {
   private int calculateTotalAmount(OrderEntity orderEntity) {
     List<Cart> cartList = orderEntity.getCartIdList().stream().map(cartId ->
             cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("해당 장바구니가 없습니다.")))
+                .orElseThrow(NotFoundCartIdException::new))
         .collect(Collectors.toList());
 
     List<Integer> cartQuantityList = cartList.stream().map(Cart::getQuantity)
@@ -238,7 +248,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Integer> priceList = beverageIdList.stream()
         .map(beverageId -> beverageRepository.findById(beverageId)
-            .orElseThrow(() -> new RuntimeException("해당 음료가 존재하지않습니다.")).getPrice()).collect(
+            .orElseThrow(NotFoundBeverageException::new).getPrice()).collect(
             Collectors.toList());
 
     int totalAmount = 0;
@@ -260,7 +270,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Cart> cartList = orderEntity.getCartIdList().stream().map(cartId ->
             cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("해당 장바구니가 없습니다.")))
+                .orElseThrow(NotFoundCartIdException::new))
         .collect(Collectors.toList());
 
     List<Integer> quantityList = cartList.stream().map(Cart::getQuantity)
@@ -271,7 +281,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     List<Integer> beveragePriceList = beverageIdList.stream().map(beverageId ->
             beverageRepository.findById(beverageId)
-                .orElseThrow(() -> new RuntimeException("해당 음료가 없습니다.")).getPrice())
+                .orElseThrow(NotFoundBeverageException::new).getPrice())
         .collect(Collectors.toList());
 
     for (int i = 0; i < beveragePriceList.size(); i++) {
@@ -299,6 +309,10 @@ public class PaymentServiceImpl implements PaymentService {
 
   private LocalDateTime dateToLocalDateTime(String date) {
 
+    if (date.length() != 8) {
+      throw new WrongDateRequestException();
+    }
+
     date = date.concat("000000");
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -308,6 +322,10 @@ public class PaymentServiceImpl implements PaymentService {
 
   private LocalDateTime monthToLocalDateTime(String month) {
 
+    if (month.length() != 6) {
+      throw new WrongMonthRequestException();
+    }
+
     month = month.concat("01000000");
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -316,6 +334,10 @@ public class PaymentServiceImpl implements PaymentService {
   }
 
   private LocalDateTime yearToLocalDateTime(String year) {
+
+    if (year.length() != 4) {
+      throw new WrongYearRequestException();
+    }
 
     year = year.concat("0101000000");
 

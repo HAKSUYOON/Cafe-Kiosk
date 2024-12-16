@@ -1,5 +1,9 @@
 package com.zerobase.cafekiosk.member.Service;
 
+import com.zerobase.cafekiosk.exception.Impl.AlreadyExistsUserException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundSignInException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundUserException;
+import com.zerobase.cafekiosk.exception.Impl.NotMatchPasswordException;
 import com.zerobase.cafekiosk.member.dto.MemberDetailDto;
 import com.zerobase.cafekiosk.member.dto.MemberDto;
 import com.zerobase.cafekiosk.member.entity.CustomUserDetails;
@@ -34,7 +38,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
   @Override
   public MemberDto register(SignupInput request) {
     if (memberRepository.existsByUsername(request.getUsername())) {
-      throw new RuntimeException("이미 존재하는 회원이름입니다.");
+      throw new AlreadyExistsUserException();
     }
 
     request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -46,10 +50,10 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
   @Override
   public Member authenticate(SigninInput request) {
     Member member = memberRepository.findByUsername(request.getUsername())
-        .orElseThrow(() -> new RuntimeException("회원이름이 존재하지 않습니다."));
+        .orElseThrow(NotFoundUserException::new);
 
     if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-      throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+      throw new NotMatchPasswordException();
     }
 
     return member;
@@ -59,7 +63,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
   public MemberDetailDto detail(Principal principal) {
 
     Member member = memberRepository.findByUsername(principal.getName())
-        .orElseThrow(() -> new RuntimeException("로그인 정보를 확인하세요."));
+        .orElseThrow(NotFoundSignInException::new);
     return MemberDetailDto.of(member);
   }
 }

@@ -4,6 +4,8 @@ import com.zerobase.cafekiosk.category.dto.CategoryDto;
 import com.zerobase.cafekiosk.category.entity.Category;
 import com.zerobase.cafekiosk.category.model.CategoryInput;
 import com.zerobase.cafekiosk.category.repository.CategoryRepository;
+import com.zerobase.cafekiosk.exception.Impl.AlreadyExistsCategoryException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundCategoryException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
   public CategoryDto add(String categoryName) {
 
     if (categoryRepository.existsByCategoryName(categoryName)) {
-      throw new RuntimeException("이미 존재하는 카테고리명 입니다.");
+      throw new AlreadyExistsCategoryException();
     }
 
     Category category = new Category().buildCategory(categoryName, defaultSortValue());
@@ -58,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
   public void delete(Long id) {
 
     if (!categoryRepository.existsById(id)) {
-      throw new RuntimeException("존재하지 않는 카테고리입니다.");
+      throw new NotFoundCategoryException();
     }
 
     categoryRepository.deleteById(id);
@@ -68,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
   public void update(Long id, CategoryInput request) {
 
     Category category = categoryRepository.findById(id).
-        orElseThrow(() -> new RuntimeException("해당 카테고리가 존재하지 않습니다."));
+        orElseThrow(NotFoundCategoryException::new);
 
     category.setCategory(category, request);
     categoryRepository.save(category);

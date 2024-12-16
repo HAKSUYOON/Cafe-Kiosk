@@ -6,6 +6,10 @@ import com.zerobase.cafekiosk.cart.dto.CartDto;
 import com.zerobase.cafekiosk.cart.entity.Cart;
 import com.zerobase.cafekiosk.cart.model.CartInput;
 import com.zerobase.cafekiosk.cart.repository.CartRepository;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundBeverageException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundCartException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundCartIdException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundKioskException;
 import com.zerobase.cafekiosk.kiosk.repository.KioskRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,19 +30,19 @@ public class CartServiceImpl implements CartService {
 
   private String getBeverageName(Long beverageId) {
     return beverageRepository.findById(beverageId)
-        .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다.")).getBeverageName();
+        .orElseThrow(NotFoundBeverageException::new).getBeverageName();
   }
 
   private int getPrice(Long beverageId) {
     return beverageRepository.findById(beverageId)
-        .orElseThrow(() -> new RuntimeException("존재하지 않는 음료입니다.")).getPrice();
+        .orElseThrow(NotFoundBeverageException::new).getPrice();
   }
 
   @Override
   public List<CartDto> list(CartInput request) {
 
     List<Cart> carts = cartRepository.findAllByKioskIdAndCartStatus(request.getKioskId(), CartStatus.CART_STATUS_ORDERED)
-        .orElseThrow(() -> new RuntimeException("상품을 추가해주세요."));
+        .orElseThrow(NotFoundCartException::new);
 
     return carts.stream().map(
             it -> CartDto.of(it, getBeverageName(it.getBeverageId()), getPrice(it.getBeverageId())))
@@ -54,10 +58,10 @@ public class CartServiceImpl implements CartService {
       return it;
     }).orElseGet(() -> {
       if (!beverageRepository.existsById(request.getBeverageId())) {
-        throw new RuntimeException("존재하지 않는 음료입니다.");
+        throw new NotFoundBeverageException();
       }
       if (!kioskRepository.existsById(request.getKioskId())) {
-        throw new RuntimeException("존재하지 않는 키오스크번호입니다.");
+        throw new NotFoundKioskException();
       }
       return new Cart().buildCart(request);
     });
@@ -71,7 +75,7 @@ public class CartServiceImpl implements CartService {
   public void upQuantity(Long id) {
 
     Cart cart = cartRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("존재하지 않는 장바구니 아이템입니다."));
+        .orElseThrow(NotFoundCartIdException::new);
 
     cart.setQuantity(cart.getQuantity() + 1);
     cartRepository.save(cart);
@@ -81,7 +85,7 @@ public class CartServiceImpl implements CartService {
   public void downQuantity(Long id) {
 
     Cart cart = cartRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("존재하지 않는 장바구니 아이템입니다."));
+        .orElseThrow(NotFoundCartIdException::new);
 
     if (cart.getQuantity() == 1) {
       cartRepository.deleteById(id);
@@ -94,7 +98,7 @@ public class CartServiceImpl implements CartService {
   @Override
   public void delete(Long id) {
     if (!cartRepository.existsById(id)) {
-      throw new RuntimeException("존재하지 않는 장바구니 아이템입니다.");
+      throw new NotFoundCartIdException();
     }
     cartRepository.deleteById(id);
   }
