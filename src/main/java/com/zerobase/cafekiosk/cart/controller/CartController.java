@@ -23,6 +23,10 @@ public class CartController {
 
   private final CartService cartService;
 
+  /**
+   * 현재 장바구니 조회
+   * 요청 : kioskId
+   */
   @GetMapping()
   public ResponseEntity<?> carts(@RequestBody CartInput request) {
 
@@ -32,6 +36,10 @@ public class CartController {
     return ResponseEntity.ok().body(new CartResult<>(list, totalPrice));
   }
 
+  /**
+   * 장바구니 음료 추가
+   * 요청 : CartInput
+   */
   @PostMapping()
   public ResponseEntity<?> createCart(@RequestBody CartInput request) {
 
@@ -40,18 +48,30 @@ public class CartController {
     return ResponseEntity.ok(cartDto);
   }
 
+  /**
+   * 해당 장바구니 수량 증가버튼
+   * 매개변수 : CartId
+   */
   @PutMapping("/plus_button/{id}")
   public void upQuantity(@PathVariable Long id) {
 
     cartService.upQuantity(id);
   }
 
+  /**
+   * 해당 장바구니 수량 감소버튼
+   * 매개변수 : CartId
+   */
   @PutMapping("/minus_button/{id}")
   public void downQuantity(@PathVariable Long id) {
 
     cartService.downQuantity(id);
   }
 
+  /**
+   * 해당 장바구니 삭제버튼
+   * 매개변수 : CartId
+   */
   @DeleteMapping("/{id}")
   public void deleteCart(@PathVariable Long id) {
 

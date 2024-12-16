@@ -33,6 +33,7 @@ public class CategoryController {
 
   /**
    * 카테고리 생성
+   * 요청 : CategoryName
    */
   @PostMapping
   public ResponseEntity<?> createCategory(@RequestBody String categoryName) {
@@ -42,6 +43,8 @@ public class CategoryController {
 
   /**
    * 카테고리 수정
+   * 매개변수 : CategoryId
+   * 요청 : CategoryInput
    */
   @PutMapping("/{id}")
   public void updateCategory(@PathVariable Long id,
@@ -51,6 +54,7 @@ public class CategoryController {
 
   /**
    * 카테고리 삭제
+   * * 매개변수 : CategoryId
    */
   @DeleteMapping("/{id}")
   public void deleteCategory(@PathVariable Long id) {

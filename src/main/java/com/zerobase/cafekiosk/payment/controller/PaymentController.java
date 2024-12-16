@@ -25,6 +25,10 @@ public class PaymentController {
   private final CardService cardService;
   private final StampHistoryService stampHistoryService;
 
+  /**
+   * 현재 주문으로부터 결제 생성
+   * 요청 : KioskId
+   */
   @PostMapping
   public ResponseEntity<?> createPayment(@RequestBody Long kioskId) {
 
@@ -35,6 +39,11 @@ public class PaymentController {
     return ResponseEntity.ok(paymentDto);
   }
 
+  /**
+   * 결제 승인 요청
+   * 매개변수 : PaymentId
+   * 요청 : PaymentInput
+   */
   @PostMapping("/confirm/{paymentId}")
   public ResponseEntity<?> confirmPayment(@PathVariable Long paymentId,
       @RequestBody PaymentInput request) {

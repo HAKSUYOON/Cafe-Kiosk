@@ -38,6 +38,7 @@ public class BeverageController {
 
   /**
    * 음료 생성
+   * 요청 : BeverageInput
    */
   @PostMapping
   public ResponseEntity<?> createBeverage(@RequestBody BeverageInput request) {
@@ -47,6 +48,8 @@ public class BeverageController {
 
   /**
    * 음료 수정
+   * 매개변수 : 음료 Id
+   * 요청 : BeverageInput
    */
   @PutMapping("/{id}")
   public void updateBeverage(@PathVariable Long id, @RequestBody BeverageInput request) {
@@ -55,6 +58,7 @@ public class BeverageController {
 
   /**
    * 음료 삭제
+   * 매개변수 : 음료 Id
    */
   @DeleteMapping("/{id}")
   public void deleteBeverage(@PathVariable Long id) {
