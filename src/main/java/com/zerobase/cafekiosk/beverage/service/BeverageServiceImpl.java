@@ -5,6 +5,9 @@ import com.zerobase.cafekiosk.beverage.entity.Beverage;
 import com.zerobase.cafekiosk.beverage.model.BeverageInput;
 import com.zerobase.cafekiosk.beverage.repository.BeverageRepository;
 import com.zerobase.cafekiosk.category.repository.CategoryRepository;
+import com.zerobase.cafekiosk.exception.Impl.AlreadyExistsBeverageException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundBeverageException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundCategoryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,11 +32,11 @@ public class BeverageServiceImpl implements BeverageService {
   public BeverageDto add(BeverageInput request) {
 
     if (beverageRepository.existsByBeverageName(request.getBeverageName())) {
-      throw new RuntimeException("이미 존재하는 음료명입니다.");
+      throw new AlreadyExistsBeverageException();
     }
 
     if (!categoryRepository.existsById(request.getCategoryId())) {
-      throw new RuntimeException("해당 카테고리가 존재하지 않습니다.");
+      throw new NotFoundCategoryException();
     }
 
     Beverage beverage = new Beverage().buildBeverage(request);
@@ -46,7 +49,7 @@ public class BeverageServiceImpl implements BeverageService {
   public void update(Long id, BeverageInput request) {
 
     Beverage beverage = beverageRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("해당 음료가 존재하지 않습니다."));
+        .orElseThrow(NotFoundBeverageException::new);
 
     beverage.setBeverage(beverage, request);
     beverageRepository.save(beverage);
@@ -57,7 +60,7 @@ public class BeverageServiceImpl implements BeverageService {
   public void delete(Long id) {
 
     if (!beverageRepository.existsById(id)) {
-      throw new RuntimeException("존재하지 않는 음료입니다.");
+      throw new NotFoundBeverageException();
     }
 
     beverageRepository.deleteById(id);
@@ -73,7 +76,7 @@ public class BeverageServiceImpl implements BeverageService {
   public BeverageDto beverageDetail(Long beverageId) {
 
     Beverage beverage = beverageRepository.findById(beverageId)
-        .orElseThrow(() -> new RuntimeException("해당 음료가 존재하지 않습니다."));
+        .orElseThrow(NotFoundBeverageException::new);
 
     return BeverageDto.of(beverage);
   }

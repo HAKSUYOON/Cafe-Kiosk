@@ -3,6 +3,9 @@ package com.zerobase.cafekiosk.admin.service;
 import com.zerobase.cafekiosk.admin.dto.StampHistoryDto;
 import com.zerobase.cafekiosk.admin.entity.StampHistory;
 import com.zerobase.cafekiosk.admin.repository.StampHistoryRepository;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundPaymentException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundStampHistoryException;
+import com.zerobase.cafekiosk.exception.Impl.NotFoundUserException;
 import com.zerobase.cafekiosk.member.entity.Member;
 import com.zerobase.cafekiosk.member.repository.MemberRepository;
 import com.zerobase.cafekiosk.payment.constant.PaymentStatus;
@@ -36,7 +39,7 @@ public class StampHistoryServiceImpl implements StampHistoryService {
   public List<StampHistoryDto> listByUsername(String username) {
 
     List<StampHistory> stampHistories = stampHistoryRepository.findByUsername(username)
-        .orElseThrow(() -> new RuntimeException("해당 유저의 스탬프이력이 없습니다."));
+        .orElseThrow(NotFoundStampHistoryException::new);
 
     return stampHistories.stream().map(StampHistoryDto::of).collect(Collectors.toList());
   }
@@ -46,7 +49,7 @@ public class StampHistoryServiceImpl implements StampHistoryService {
 
     Payment payment = paymentRepository.findByIdAndKioskIdAndPaymentStatus(
             paymentId, request.getKioskId(), PaymentStatus.PAYMENT_STATUS_DONE)
-        .orElseThrow(() -> new RuntimeException("입력하신 결제번호에 대한 적절한 결제정보를 가져오지 못했습니다."));
+        .orElseThrow(NotFoundPaymentException::new);
 
     if (!payment.getUsername().equals("AnonymousUser")) {
       StampHistory stampHistory = StampHistory.buildStampHistory(payment,
@@ -59,7 +62,7 @@ public class StampHistoryServiceImpl implements StampHistoryService {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   private synchronized int afterStamp(String username) {
     Member member = memberRepository.findByUsername(username)
-        .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+        .orElseThrow(NotFoundUserException::new);
 
     return member.getStamp();
   }
