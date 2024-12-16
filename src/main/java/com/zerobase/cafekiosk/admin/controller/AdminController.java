@@ -23,6 +23,9 @@ public class AdminController {
   private final PaymentService paymentService;
   private final StampHistoryService stampHistoryService;
 
+  /**
+   * 오늘 매출액 조회
+   */
   @GetMapping("/revenues/today")
   public ResponseEntity<?> todayRevenue() {
 
@@ -33,6 +36,10 @@ public class AdminController {
     return ResponseEntity.ok(new RevenueResult<>(revenueDtoList, revenue, count));
   }
 
+  /**
+   * 해당 날짜의 매출액 조회
+   * 파라미터 : 날짜 (yyyyMMdd)
+   */
   @GetMapping("/revenues/date")
   public ResponseEntity<?> dateRevenue(@RequestParam String date) {
 
@@ -43,6 +50,10 @@ public class AdminController {
     return ResponseEntity.ok(new RevenueResult<>(revenueDtoList, revenue, count));
   }
 
+  /**
+   * 해당 월의 매출액 조회
+   * 파라미터 : 날짜 (yyyyMM)
+   */
   @GetMapping("/revenues/month")
   public ResponseEntity<?> monthRevenues(@RequestParam String month) {
 
@@ -53,6 +64,10 @@ public class AdminController {
     return ResponseEntity.ok(new RevenueResult<>(revenueDtoList, revenue, count));
   }
 
+  /**
+   * 해당 년도의 매출액 조회
+   * 파라미터 : 날짜 (yyyy)
+   */
   @GetMapping("/revenues/year")
   public ResponseEntity<?> yearRevenues(@RequestParam String year) {
 
@@ -63,6 +78,9 @@ public class AdminController {
     return ResponseEntity.ok(new RevenueResult<>(revenueDtoList, revenue, count));
   }
 
+  /**
+   * 스탬프 사용이력 조회
+   */
   @GetMapping("/stamp-histories")
   public ResponseEntity<?> stampHistories() {
 
@@ -71,6 +89,10 @@ public class AdminController {
     return ResponseEntity.ok(stampHistoryDtoList);
   }
 
+  /**
+   * 회원아이디로 스탬프 사용이력 조회
+   * 매개변수 : 회원아이디
+   */
   @GetMapping("/stamp-histories/{username}")
   public ResponseEntity<?> stampHistoriesByUsername(@PathVariable String username) {
 

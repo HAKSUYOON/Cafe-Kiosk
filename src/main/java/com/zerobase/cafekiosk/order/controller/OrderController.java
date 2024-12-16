@@ -18,6 +18,10 @@ public class OrderController {
 
   private final OrderService orderService;
 
+  /**
+   * 현재 주문내역 확인
+   * 요청 : KioskId
+   */
   @GetMapping
   public ResponseEntity<?> currentOrder(@RequestBody Long kioskId) {
 
@@ -26,6 +30,10 @@ public class OrderController {
     return ResponseEntity.ok(orderDto);
   }
 
+  /**
+   * 현재 장바구니로부터 주문 생성
+   * 요청 : KioskId
+   */
   @PostMapping
   public ResponseEntity<?> add(@RequestBody Long kioskId) {
 
@@ -34,6 +42,10 @@ public class OrderController {
     return ResponseEntity.ok(orderDto);
   }
 
+  /**
+   * 주문 취소, 장바구니로 돌아가기
+   * 요청 : KioskId
+   */
   @DeleteMapping("/backspace_button")
   public void delete(@RequestBody Long kioskId) {
 

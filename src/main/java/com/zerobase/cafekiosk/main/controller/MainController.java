@@ -23,6 +23,9 @@ public class MainController {
   private final CategoryService categoryService;
   private final BeverageService beverageService;
 
+  /**
+   * 사용자 카테고리 조회
+   */
   @GetMapping("/categories")
   public ResponseEntity<?> frontCategories() {
 
@@ -31,6 +34,10 @@ public class MainController {
     return ResponseEntity.ok(list);
   }
 
+  /**
+   * 사용자 카테고리별 음료 전체조회 페이징처리
+   * 매개변수 : CategoryId
+   */
   @GetMapping("/categories/beverages/{categoryId}")
   public ResponseEntity<?> frontBeverages(
       @PathVariable Long categoryId,
@@ -42,6 +49,10 @@ public class MainController {
     return ResponseEntity.ok(list);
   }
 
+  /**
+   * 해당 음료 상세정보 조회
+   * 매개변수 : BeverageId
+   */
   @GetMapping("/beverage/{beverageId}")
   public ResponseEntity<?> beverageDetail(
       @PathVariable Long beverageId) {
