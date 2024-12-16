@@ -108,7 +108,7 @@
 
 
 ## ERD 
-
+![ERD](cafekioskerd.png)
 
 ## Trouble Shooting
 
