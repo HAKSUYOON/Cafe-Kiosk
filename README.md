@@ -119,10 +119,10 @@
   - Gradle
   - Dependencies
     - Lombok
-    - Spring Security
+    - Spring Security (JWT)
+    - Validation
     - Devtools
     - JDBC
-    - Thymeleaf
 - Mysql : version 8.0.38 community
 - Git
 <div align=center> 
