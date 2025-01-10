@@ -10,11 +10,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-@Entity
+
+
 @Data
+@Entity
 @Builder
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class Beverage {
 
   @Id
